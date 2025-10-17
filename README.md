@@ -4,6 +4,19 @@ Welcome to **Rock, Paper, Scissors** — a simple browser-based game where you c
 
 ---
 
+## 🎓 Certification
+
+**Course:** [JavaScript Algorithms and Data Structures](https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8)
+
+**Complete Your Certificate:**
+- ✅ This project (Rock, Paper, Scissors) fulfills one requirement
+- 🔗 [View all 25+ required projects](https://github.com/acheronx0577/JavaScript-Algorithms-and-Data-Structures/tree/main)
+- 🎓 Complete all projects to earn your certification
+
+This repository contains the complete portfolio of projects needed to demonstrate JavaScript proficiency and earn the freeCodeCamp certificate.
+
+---
+
 ## 📸 Game Preview
 
 <img width="1617" height="366" alt="Screenshot 2025-10-17 125753" src="https://github.com/user-attachments/assets/dd4918d5-41ba-4110-9a4b-60ea41befc95" />
