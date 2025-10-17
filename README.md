@@ -58,12 +58,12 @@ Live Demo: https://acheronx0577.github.io/JavaScript-Building-a-Rock-Paper-Sciss
 
 ### 1️⃣ Clone this repo
 ```
-git clone git@github.com:acheronx0577/JavaScript-Role-Play-Game.git
+git clone git@github.com:acheronx0577/JavaScript-Building-a-Rock-Paper-Scissors-Game.git
 ```
 
 ### 2️⃣ Open the project folder
 ```
-cd JavaScript Role Play Game
+cd JavaScript-Building-a-Rock-Paper-Scissors-Game
 ```
 
 ### 3️⃣ Run the game
