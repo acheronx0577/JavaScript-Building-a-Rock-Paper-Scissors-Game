@@ -25,7 +25,7 @@ This repository contains the complete portfolio of projects needed to demonstrat
 ---
 
 ### New Design:
-<img width="919" height="1001" alt="image" src="https://github.com/user-attachments/assets/83562245-9983-4fa6-8451-05bcf9d22b7b" />
+<img width="912" height="1152" alt="image" src="https://github.com/user-attachments/assets/ff50ced0-b1a5-41a8-8849-c78afcff021d" />
 
 Live Demo: https://acheronx0577.github.io/JavaScript-Building-a-Rock-Paper-Scissors-Game
 
