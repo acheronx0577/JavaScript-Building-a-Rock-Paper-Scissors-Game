@@ -71,17 +71,6 @@ Just open `index.html` in your favorite browser 🌐 and start playing!
 
 ---
 
-## 🛠️ Features
-
-- **Simple and intuitive gameplay**
-- **Real-time score tracking**
-- **Responsive design** for all devices
-- **Clean and modern UI** with smooth animations
-- **Game reset functionality**
-- Built with **vanilla JavaScript**, **HTML5**, and **CSS3**
-
----
-
 ## 🤝 Contribute
 
 Want to improve this project?  
