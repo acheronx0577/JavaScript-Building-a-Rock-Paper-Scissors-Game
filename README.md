@@ -66,12 +66,7 @@ Live Demo: https://acheronx0577.github.io/JavaScript-Building-a-Rock-Paper-Sciss
 git clone git@github.com:acheronx0577/JavaScript-Building-a-Rock-Paper-Scissors-Game.git
 ```
 
-### 2️⃣ Open the project folder
-```
-cd JavaScript-Building-a-Rock-Paper-Scissors-Game
-```
-
-### 3️⃣ Run the game
+### 2️⃣ Run the game
 Just open `index.html` in your favorite browser 🌐 and start playing!
 
 ---
@@ -84,27 +79,6 @@ Just open `index.html` in your favorite browser 🌐 and start playing!
 - **Clean and modern UI** with smooth animations
 - **Game reset functionality**
 - Built with **vanilla JavaScript**, **HTML5**, and **CSS3**
-
----
-
-## 💡 How It Works
-
-- **Random computer selection** using `Math.random()`
-- **Score management** with global variables
-- **DOM manipulation** for dynamic updates
-- **Event listeners** for user interactions
-- **Conditional logic** for game rules
-
----
-
-## 🎯 Learning Objectives
-
-This project demonstrates:
-- JavaScript fundamentals (functions, variables, conditionals)
-- DOM manipulation and event handling
-- Algorithm implementation (game logic)
-- CSS styling and responsive design
-- Project structure and code organization
 
 ---
 
