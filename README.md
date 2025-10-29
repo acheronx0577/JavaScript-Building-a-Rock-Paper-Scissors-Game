@@ -49,16 +49,6 @@ Live Demo: https://acheronx0577.github.io/JavaScript-Building-a-Rock-Paper-Sciss
 
 ---
 
-## 🧩 Game Files
-
-| File | Description |
-|------|--------------|
-| `index.html` | Main game layout and structure |
-| `script.js` | Game logic and mechanics ⚙️ |
-| `styles.css` | Visual design and styling 🎨 |
-
----
-
 ## 🧰 Installation & Usage
 
 ### 1️⃣ Clone this repo
