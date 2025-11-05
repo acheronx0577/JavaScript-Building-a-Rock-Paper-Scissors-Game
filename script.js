@@ -14,6 +14,7 @@ function hasPlayerWonTheRound(player, computer) {
 
 let playerScore = 0;
 let computerScore = 0;
+let roundsPlayed = 0;
 
 // Get emoji for choices
 function getChoiceEmoji(choice) {
@@ -25,103 +26,122 @@ function getChoiceEmoji(choice) {
   return emojis[choice] || "❓";
 }
 
-function getRoundResults(userOption) {
-  const computerResult = getRandomComputerResult();
-
-  if (hasPlayerWonTheRound(userOption, computerResult)) {
-    playerScore++;
-    return `🎉 You win! ${getChoiceEmoji(userOption)} ${userOption} beats ${getChoiceEmoji(computerResult)} ${computerResult}`;
-  } else if (computerResult === userOption) {
-    return `🤝 It's a tie! Both chose ${getChoiceEmoji(userOption)} ${userOption}`;
-  } else {
-    computerScore++;
-    return `💻 Computer wins! ${getChoiceEmoji(computerResult)} ${computerResult} beats ${getChoiceEmoji(userOption)} ${userOption}`;
-  }
-}
-
-const playerScoreSpanElement = document.getElementById("player-score");
-const computerScoreSpanElement = document.getElementById("computer-score");
+// DOM Elements
+const playerScoreElement = document.getElementById("player-score");
+const computerScoreElement = document.getElementById("computer-score");
 const roundResultsMsg = document.getElementById("results-msg");
 const winnerMsgElement = document.getElementById("winner-msg");
-const optionsContainer = document.querySelector(".options-container");
-const resetGameBtn = document.getElementById("reset-game-btn");
 const playerChoiceElement = document.getElementById("player-choice");
 const computerChoiceElement = document.getElementById("computer-choice");
+const resetGameBtn = document.getElementById("reset-game-btn");
+const statusElement = document.getElementById("status");
+const roundsPlayedElement = document.getElementById("rounds-played");
+const connectionStatus = document.querySelector("#connection-status");
+
+// Update status display
+function updateStatus(message, color = 'var(--accent-success)') {
+    statusElement.textContent = message;
+    statusElement.style.color = color;
+}
 
 function showResults(userOption) {
-  // Show loading state
-  playerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
-  computerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
-  playerChoiceElement.classList.add('active');
-  
-  const computerResult = getRandomComputerResult();
-  
-  // Simulate "thinking" delay for better UX
-  setTimeout(() => {
-    // Update choices display
-    playerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(userOption);
-    computerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(computerResult);
-    computerChoiceElement.classList.add('active');
+    // Update status
+    updateStatus('PROCESSING...', 'var(--accent-info)');
     
-    // Add animations
-    playerChoiceElement.classList.add('pulse');
-    computerChoiceElement.classList.add('pulse');
+    // Show loading state
+    playerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
+    computerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
+    playerChoiceElement.classList.add('active');
+    computerChoiceElement.classList.add('thinking');
     
-    // Remove animations after they complete
+    const computerResult = getRandomComputerResult();
+    
+    // Simulate "thinking" delay for better UX
     setTimeout(() => {
-      playerChoiceElement.classList.remove('pulse');
-      computerChoiceElement.classList.remove('pulse');
-    }, 500);
-    
-    // Get and display results
-    roundResultsMsg.innerText = getRoundResults(userOption, computerResult);
-    computerScoreSpanElement.innerText = computerScore;
-    playerScoreSpanElement.innerText = playerScore;
-    
-    // Add score animation
-    if (hasPlayerWonTheRound(userOption, computerResult)) {
-      playerScoreSpanElement.classList.add('bounce');
-    } else if (userOption !== computerResult) {
-      computerScoreSpanElement.classList.add('bounce');
-    }
-    
-    // Remove score animation after completion
-    setTimeout(() => {
-      playerScoreSpanElement.classList.remove('bounce');
-      computerScoreSpanElement.classList.remove('bounce');
-    }, 600);
-    
-    // Check for game winner
-    if (playerScore === 3 || computerScore === 3) {
-      const winner = playerScore === 3 ? "Player" : "Computer";
-      winnerMsgElement.innerText = `🏆 ${winner} has won the game!`;
-      winnerMsgElement.classList.add('pulse');
-      
-      resetGameBtn.style.display = "flex";
-      optionsContainer.style.display = "none";
-    }
-  }, 800);
+        // Remove thinking animation
+        computerChoiceElement.classList.remove('thinking');
+        
+        // Update choices display
+        playerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(userOption);
+        computerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(computerResult);
+        computerChoiceElement.classList.add('active');
+        
+        // Add animations
+        playerChoiceElement.classList.add('pulse');
+        computerChoiceElement.classList.add('pulse');
+        
+        // Remove animations after they complete
+        setTimeout(() => {
+            playerChoiceElement.classList.remove('pulse');
+            computerChoiceElement.classList.remove('pulse');
+        }, 500);
+        
+        // Determine round result
+        let resultMessage = "";
+        if (hasPlayerWonTheRound(userOption, computerResult)) {
+            playerScore++;
+            resultMessage = `🎉 PLAYER_WINS! ${getChoiceEmoji(userOption)} BEATS ${getChoiceEmoji(computerResult)}`;
+            updateStatus('PLAYER_WINS_ROUND', 'var(--accent-success)');
+            playerScoreElement.classList.add('bounce');
+        } else if (computerResult === userOption) {
+            resultMessage = `🤝 TIE_GAME! BOTH_CHOSE ${getChoiceEmoji(userOption)}`;
+            updateStatus('ROUND_TIED', 'var(--accent-info)');
+        } else {
+            computerScore++;
+            resultMessage = `💻 COMPUTER_WINS! ${getChoiceEmoji(computerResult)} BEATS ${getChoiceEmoji(userOption)}`;
+            updateStatus('COMPUTER_WINS_ROUND', 'var(--accent-warning)');
+            computerScoreElement.classList.add('bounce');
+        }
+        
+        // Update displays
+        roundResultsMsg.innerText = resultMessage;
+        computerScoreElement.innerText = computerScore;
+        playerScoreElement.innerText = playerScore;
+        
+        roundsPlayed++;
+        roundsPlayedElement.textContent = roundsPlayed;
+        
+        // Remove score animation after completion
+        setTimeout(() => {
+            playerScoreElement.classList.remove('bounce');
+            computerScoreElement.classList.remove('bounce');
+        }, 600);
+        
+        // Check for game winner
+        if (playerScore === 3 || computerScore === 3) {
+            const winner = playerScore === 3 ? "PLAYER" : "COMPUTER";
+            winnerMsgElement.innerText = `🏆 ${winner}_WINS_THE_GAME!`;
+            winnerMsgElement.classList.add('pulse');
+            
+            updateStatus('GAME_OVER', winner === "PLAYER" ? 'var(--accent-success)' : 'var(--accent-warning)');
+            
+            resetGameBtn.style.display = "inline-flex";
+        }
+    }, 800);
 }
 
 function resetGame() {
-  playerScore = 0;
-  computerScore = 0;
+    playerScore = 0;
+    computerScore = 0;
+    roundsPlayed = 0;
 
-  playerScoreSpanElement.innerText = playerScore;
-  computerScoreSpanElement.innerText = computerScore;
+    playerScoreElement.innerText = playerScore;
+    computerScoreElement.innerText = computerScore;
+    roundsPlayedElement.textContent = roundsPlayed;
 
-  resetGameBtn.style.display = "none";
-  optionsContainer.style.display = "block";
+    resetGameBtn.style.display = "none";
 
-  winnerMsgElement.innerText = "";
-  winnerMsgElement.classList.remove('pulse');
-  roundResultsMsg.innerText = "Make your move to start the game!";
-  
-  // Reset choice displays
-  playerChoiceElement.querySelector('.choice-icon').textContent = "?";
-  computerChoiceElement.querySelector('.choice-icon').textContent = "?";
-  playerChoiceElement.classList.remove('active');
-  computerChoiceElement.classList.remove('active');
+    winnerMsgElement.innerText = "";
+    winnerMsgElement.classList.remove('pulse');
+    roundResultsMsg.innerText = "AWAITING_PLAYER_INPUT...";
+    
+    // Reset choice displays
+    playerChoiceElement.querySelector('.choice-icon').textContent = "?";
+    computerChoiceElement.querySelector('.choice-icon').textContent = "?";
+    playerChoiceElement.classList.remove('active');
+    computerChoiceElement.classList.remove('active');
+    
+    updateStatus('READY');
 }
 
 // Event Listeners
@@ -132,30 +152,56 @@ const paperBtn = document.getElementById("paper-btn");
 const scissorsBtn = document.getElementById("scissors-btn");
 
 rockBtn.addEventListener("click", function () {
-  showResults("Rock");
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Rock");
+    }
 });
 
 paperBtn.addEventListener("click", function () {
-  showResults("Paper");
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Paper");
+    }
 });
 
 scissorsBtn.addEventListener("click", function () {
-  showResults("Scissors");
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Scissors");
+    }
 });
 
 // Add keyboard support
 document.addEventListener('keydown', function(event) {
-  if (optionsContainer.style.display !== 'none') {
-    switch(event.key.toLowerCase()) {
-      case 'r':
-        showResults("Rock");
-        break;
-      case 'p':
-        showResults("Paper");
-        break;
-      case 's':
-        showResults("Scissors");
-        break;
+    if (playerScore < 3 && computerScore < 3) {
+        switch(event.key.toLowerCase()) {
+            case 'r':
+                showResults("Rock");
+                rockBtn.classList.add('pulse');
+                setTimeout(() => rockBtn.classList.remove('pulse'), 300);
+                break;
+            case 'p':
+                showResults("Paper");
+                paperBtn.classList.add('pulse');
+                setTimeout(() => paperBtn.classList.remove('pulse'), 300);
+                break;
+            case 's':
+                showResults("Scissors");
+                scissorsBtn.classList.add('pulse');
+                setTimeout(() => scissorsBtn.classList.remove('pulse'), 300);
+                break;
+            case ' ':
+                event.preventDefault();
+                showResults(["Rock", "Paper", "Scissors"][Math.floor(Math.random() * 3)]);
+                break;
+        }
     }
-  }
 });
+
+// Initialize
+function init() {
+    updateStatus('READY');
+    connectionStatus.textContent = 'ONLINE';
+    resetGameBtn.style.display = "none";
+}
+
+// Initialize when page loads
+window.onload = init;
