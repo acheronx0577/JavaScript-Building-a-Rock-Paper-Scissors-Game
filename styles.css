@@ -1,398 +1,207 @@
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+function getRandomComputerResult() {
+  const options = ["Rock", "Paper", "Scissors"];
+  const randomIndex = Math.floor(Math.random() * options.length);
+  return options[randomIndex];
 }
 
-:root {
-    --very-dark-blue: #0a0a23;
-    --dark-blue: #1a1a3a;
-    --white: #ffffff;
-    --yellow: #f1be32;
-    --golden-yellow: #feac32;
-    --orange: #ff8c00;
-    --red: #ff4444;
-    --green: #44ff44;
-    --blue: #4444ff;
-    --purple: #8a2be2;
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
-    --transition: all 0.3s ease;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+function hasPlayerWonTheRound(player, computer) {
+  return (
+    (player === "Rock" && computer === "Scissors") ||
+    (player === "Scissors" && computer === "Paper") ||
+    (player === "Paper" && computer === "Rock")
+  );
 }
 
-body {
-    background: linear-gradient(135deg, var(--very-dark-blue) 0%, var(--dark-blue) 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: var(--white);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+let playerScore = 0;
+let computerScore = 0;
+let roundsPlayed = 0;
+
+// Get emoji for choices
+function getChoiceEmoji(choice) {
+  const emojis = {
+    "Rock": "🗿",
+    "Paper": "📄", 
+    "Scissors": "✂️"
+  };
+  return emojis[choice] || "❓";
 }
 
-.game-container {
-    max-width: 800px;
-    width: 100%;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: var(--shadow);
+// DOM Elements
+const playerScoreElement = document.getElementById("player-score");
+const computerScoreElement = document.getElementById("computer-score");
+const roundResultsMsg = document.getElementById("results-msg");
+const winnerMsgElement = document.getElementById("winner-msg");
+const playerChoiceElement = document.getElementById("player-choice");
+const computerChoiceElement = document.getElementById("computer-choice");
+const resetGameBtn = document.getElementById("reset-game-btn");
+const statusElement = document.getElementById("status");
+const roundsPlayedElement = document.getElementById("rounds-played");
+const connectionStatus = document.querySelector("#connection-status");
+
+// Update status display
+function updateStatus(message, color = 'var(--accent-success)') {
+    statusElement.textContent = message;
+    statusElement.style.color = color;
 }
 
-.game-header {
-    text-align: center;
-    margin-bottom: 30px;
+function showResults(userOption) {
+    // Update status
+    updateStatus('PROCESSING...', 'var(--accent-info)');
+    
+    // Show loading state
+    playerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
+    computerChoiceElement.querySelector('.choice-icon').textContent = "⏳";
+    playerChoiceElement.classList.add('active');
+    computerChoiceElement.classList.add('thinking');
+    
+    const computerResult = getRandomComputerResult();
+    
+    // Simulate "thinking" delay for better UX
+    setTimeout(() => {
+        // Remove thinking animation
+        computerChoiceElement.classList.remove('thinking');
+        
+        // Update choices display
+        playerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(userOption);
+        computerChoiceElement.querySelector('.choice-icon').textContent = getChoiceEmoji(computerResult);
+        computerChoiceElement.classList.add('active');
+        
+        // Add animations
+        playerChoiceElement.classList.add('pulse');
+        computerChoiceElement.classList.add('pulse');
+        
+        // Remove animations after they complete
+        setTimeout(() => {
+            playerChoiceElement.classList.remove('pulse');
+            computerChoiceElement.classList.remove('pulse');
+        }, 500);
+        
+        // Determine round result
+        let resultMessage = "";
+        if (hasPlayerWonTheRound(userOption, computerResult)) {
+            playerScore++;
+            resultMessage = `🎉 PLAYER_WINS! ${getChoiceEmoji(userOption)} BEATS ${getChoiceEmoji(computerResult)}`;
+            updateStatus('PLAYER_WINS_ROUND', 'var(--accent-success)');
+            playerScoreElement.classList.add('bounce');
+        } else if (computerResult === userOption) {
+            resultMessage = `🤝 TIE_GAME! BOTH_CHOSE ${getChoiceEmoji(userOption)}`;
+            updateStatus('ROUND_TIED', 'var(--accent-info)');
+        } else {
+            computerScore++;
+            resultMessage = `💻 COMPUTER_WINS! ${getChoiceEmoji(computerResult)} BEATS ${getChoiceEmoji(userOption)}`;
+            updateStatus('COMPUTER_WINS_ROUND', 'var(--accent-warning)');
+            computerScoreElement.classList.add('bounce');
+        }
+        
+        // Update displays
+        roundResultsMsg.innerText = resultMessage;
+        computerScoreElement.innerText = computerScore;
+        playerScoreElement.innerText = playerScore;
+        
+        roundsPlayed++;
+        roundsPlayedElement.textContent = roundsPlayed;
+        
+        // Remove score animation after completion
+        setTimeout(() => {
+            playerScoreElement.classList.remove('bounce');
+            computerScoreElement.classList.remove('bounce');
+        }, 600);
+        
+        // Check for game winner
+        if (playerScore === 3 || computerScore === 3) {
+            const winner = playerScore === 3 ? "PLAYER" : "COMPUTER";
+            winnerMsgElement.innerText = `🏆 ${winner}_WINS_THE_GAME!`;
+            winnerMsgElement.classList.add('pulse');
+            
+            updateStatus('GAME_OVER', winner === "PLAYER" ? 'var(--accent-success)' : 'var(--accent-warning)');
+            
+            resetGameBtn.style.display = "inline-flex";
+        }
+    }, 800);
 }
 
-.game-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    background: linear-gradient(45deg, var(--yellow), var(--orange));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+function resetGame() {
+    playerScore = 0;
+    computerScore = 0;
+    roundsPlayed = 0;
+
+    playerScoreElement.innerText = playerScore;
+    computerScoreElement.innerText = computerScore;
+    roundsPlayedElement.textContent = roundsPlayed;
+
+    resetGameBtn.style.display = "none";
+
+    winnerMsgElement.innerText = "";
+    winnerMsgElement.classList.remove('pulse');
+    roundResultsMsg.innerText = "AWAITING_PLAYER_INPUT...";
+    
+    // Reset choice displays
+    playerChoiceElement.querySelector('.choice-icon').textContent = "?";
+    computerChoiceElement.querySelector('.choice-icon').textContent = "?";
+    playerChoiceElement.classList.remove('active');
+    computerChoiceElement.classList.remove('active');
+    
+    updateStatus('READY');
 }
 
-.subtitle {
-    font-size: 1.1rem;
-    opacity: 0.8;
-}
+// Event Listeners
+resetGameBtn.addEventListener("click", resetGame);
 
-.rules-card {
-    margin-bottom: 30px;
-}
+const rockBtn = document.getElementById("rock-btn");
+const paperBtn = document.getElementById("paper-btn");
+const scissorsBtn = document.getElementById("scissors-btn");
 
-.rules-container {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 15px;
-    padding: 20px;
-    transition: var(--transition);
-}
-
-.rules-container[open] {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.rules-container summary {
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.rules-container summary::-webkit-details-marker {
-    display: none;
-}
-
-.rules-content {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--glass-border);
-}
-
-.rules-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.rule-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-}
-
-.rule-icon {
-    font-size: 1.5rem;
-}
-
-.score-board {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 30px;
-    position: relative;
-}
-
-.score-player,
-.score-computer {
-    text-align: center;
-    flex: 1;
-}
-
-.score-label {
-    font-size: 1rem;
-    opacity: 0.8;
-    margin-bottom: 5px;
-}
-
-.score-value {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--yellow);
-}
-
-.score-vs {
-    background: var(--orange);
-    color: var(--very-dark-blue);
-    padding: 10px 20px;
-    border-radius: 50px;
-    font-weight: bold;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.battle-section {
-    margin-bottom: 30px;
-}
-
-.choice-display {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-
-.choice {
-    flex: 1;
-    background: var(--glass-bg);
-    border: 2px solid var(--glass-border);
-    border-radius: 15px;
-    padding: 30px 20px;
-    text-align: center;
-    transition: var(--transition);
-}
-
-.choice.active {
-    border-color: var(--yellow);
-    box-shadow: 0 0 20px rgba(254, 172, 50, 0.3);
-    transform: scale(1.05);
-}
-
-.choice-icon {
-    font-size: 4rem;
-    margin-bottom: 10px;
-}
-
-.choice-label {
-    font-size: 1rem;
-    opacity: 0.8;
-}
-
-.vs-badge {
-    background: var(--glass-bg);
-    border: 2px solid var(--glass-border);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-
-.options-container {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.options-container h2 {
-    margin-bottom: 20px;
-    font-size: 1.3rem;
-}
-
-.btn-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    cursor: pointer;
-    border: none;
-    border-radius: 15px;
-    padding: 15px 25px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, var(--golden-yellow), var(--orange));
-    color: var(--very-dark-blue);
-    box-shadow: 0 4px 15px rgba(254, 172, 50, 0.3);
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(254, 172, 50, 0.4);
-}
-
-.btn:active {
-    transform: translateY(-1px);
-}
-
-.weapon-btn {
-    flex-direction: column;
-    min-width: 120px;
-    min-height: 120px;
-    background: var(--glass-bg);
-    border: 2px solid var(--glass-border);
-    color: var(--white);
-}
-
-.weapon-btn:hover {
-    border-color: var(--yellow);
-    background: rgba(254, 172, 50, 0.1);
-}
-
-.btn-icon {
-    font-size: 2rem;
-}
-
-.btn-text {
-    font-size: 1rem;
-}
-
-.results-container {
-    text-align: center;
-}
-
-.round-result {
-    margin-bottom: 20px;
-}
-
-.result-text {
-    font-size: 1.3rem;
-    font-weight: 600;
-    min-height: 2rem;
-}
-
-.winner-text {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: var(--yellow);
-}
-
-.reset-btn {
-    margin: 0 auto;
-    display: none;
-}
-
-/* Animations */
-@keyframes bounce {
-
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-        transform: translateY(0);
+rockBtn.addEventListener("click", function () {
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Rock");
     }
+});
 
-    40% {
-        transform: translateY(-10px);
+paperBtn.addEventListener("click", function () {
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Paper");
     }
+});
 
-    60% {
-        transform: translateY(-5px);
+scissorsBtn.addEventListener("click", function () {
+    if (playerScore < 3 && computerScore < 3) {
+        showResults("Scissors");
     }
+});
+
+// Add keyboard support
+document.addEventListener('keydown', function(event) {
+    if (playerScore < 3 && computerScore < 3) {
+        switch(event.key.toLowerCase()) {
+            case 'r':
+                showResults("Rock");
+                rockBtn.classList.add('pulse');
+                setTimeout(() => rockBtn.classList.remove('pulse'), 300);
+                break;
+            case 'p':
+                showResults("Paper");
+                paperBtn.classList.add('pulse');
+                setTimeout(() => paperBtn.classList.remove('pulse'), 300);
+                break;
+            case 's':
+                showResults("Scissors");
+                scissorsBtn.classList.add('pulse');
+                setTimeout(() => scissorsBtn.classList.remove('pulse'), 300);
+                break;
+            case ' ':
+                event.preventDefault();
+                showResults(["Rock", "Paper", "Scissors"][Math.floor(Math.random() * 3)]);
+                break;
+        }
+    }
+});
+
+// Initialize
+function init() {
+    updateStatus('READY');
+    connectionStatus.textContent = 'ONLINE';
+    resetGameBtn.style.display = "none";
 }
 
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
-    }
-
-    25% {
-        transform: translateX(-5px);
-    }
-
-    75% {
-        transform: translateX(5px);
-    }
-}
-
-.bounce {
-    animation: bounce 0.6s;
-}
-
-.pulse {
-    animation: pulse 0.5s;
-}
-
-.shake {
-    animation: shake 0.5s;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .game-container {
-        padding: 20px;
-    }
-
-    .game-header h1 {
-        font-size: 2rem;
-    }
-
-    .choice-display {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .vs-badge {
-        order: -1;
-        margin-bottom: 10px;
-    }
-
-    .btn-container {
-        gap: 10px;
-    }
-
-    .weapon-btn {
-        min-width: 100px;
-        min-height: 100px;
-    }
-
-    .rules-grid {
-        grid-template-columns: 1fr;
-    }
-}
+// Initialize when page loads
+window.onload = init;
